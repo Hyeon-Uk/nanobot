@@ -229,3 +229,98 @@ nanobot (0.1.4.post6)
         ├── pytest-asyncio
         ├── pytest-cov
         └── ruff (Linter)
+
+
+
+        ---
+
+
+        - **nanobot** (0.1.4.post6) [48 KB]
+  - **1. Core Framework & Utilities**
+    - pydantic (>=2.12.0) [407 KB]
+      - annotated-types [16 KB]
+      - pydantic-core [2150 KB]
+      - typing-extensions [38 KB]
+    - pydantic-settings (>=2.12.0) [44 KB]
+      - python-dotenv [24 KB]
+    - typer (>=0.20.0) [45 KB]
+      - click [98 KB]
+    - loguru (>=0.7.3) [63 KB]
+    - croniter (>=6.0.0) [54 KB]
+      - python-dateutil [228 KB]
+      - pytz [505 KB]
+    - msgpack (>=1.1.0) [334 KB]
+
+  - **2. AI & LLM Providers**
+    - openai (>=2.8.0) [423 KB]
+      - anyio [93 KB]
+      - distro [16 KB]
+      - sniffio [6 KB]
+      - tqdm [79 KB]
+    - anthropic (>=0.45.0) [164 KB]
+      - tokenizers [3150 KB]
+    - tiktoken (>=0.12.0) [1120 KB]
+      - regex [384 KB]
+
+  - **3. Networking & HTTP Clients**
+    - httpx (>=0.28.0) [74 KB]
+      - certifi [167 KB]
+      - httpcore [80 KB]
+      - idna [60 KB]
+    - websockets (>=16.0) [154 KB]
+    - websocket-client (>=1.9.0) [59 KB]
+    - python-socks[asyncio] (>=2.8.0) [42 KB]
+      - async-timeout [14 KB]
+    - socksio (>=1.0.0) [24 KB]
+
+  - **4. Messaging & Chat Channels**
+    - python-telegram-bot[socks] (>=22.6) [621 KB]
+      - cryptography [4250 KB]
+    - slack-sdk (>=3.39.0) [325 KB]
+    - slackify-markdown (>=0.2.0) [12 KB]
+    - qq-botpy (>=1.2.0) [78 KB]
+      - aiohttp [1150 KB]
+      - pyyaml [185 KB]
+    - lark-oapi (>=1.5.0) [380 KB]
+      - requests-toolbelt [55 KB]
+      - requests [65 KB]
+    - dingtalk-stream (>=0.24.0) [22 KB]
+    - python-socketio (>=5.16.0) [80 KB]
+      - bidict [35 KB]
+      - python-engineio [60 KB]
+        - simple-websocket [14 KB]
+
+  - **5. Tools & Protocols**
+    - ddgs (>=9.5.5) [45 KB]
+      - curl-cffi [12450 KB]
+      - lxml [5320 KB]
+    - mcp (>=1.26.0) [45 KB]
+    - readability-lxml (>=0.8.4) [42 KB]
+      - chardet (>=3.0.2) [202 KB]
+      - cssselect [19 KB]
+    - json-repair (>=0.57.0) [36 KB]
+    - oauth-cli-kit (>=0.1.3) [14 KB]
+
+  - **6. CLI Interface & Terminal**
+    - rich (>=14.0.0) [245 KB]
+      - markdown-it-py [86 KB]
+      - pygments [1250 KB]
+    - prompt-toolkit (>=3.0.50) [392 KB]
+      - wcwidth [35 KB]
+    - questionary (>=2.0.0) [42 KB]
+
+  - **7. Optional Dependencies (선택 설치)**
+    - wecom [200 KB]
+    - weixin [15 KB]
+      - qrcode[pil] [40 KB]
+      - pycryptodome [14850 KB]
+    - matrix [30 KB]
+      - matrix-nio[e2e] [215 KB]
+      - mistune [310 KB]
+      - nh3 [2010 KB]
+    - langsmith [180 KB]
+    - dev [15 KB]
+      - pytest [320 KB]
+      - pytest-asyncio [45 KB]
+      - pytest-cov [60 KB]
+      - ruff [30210 KB]
