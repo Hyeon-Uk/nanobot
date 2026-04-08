@@ -1855,3 +1855,73 @@ fi
 # 4. 브라우저가 차트를 완전히 로드할 수 있도록 충분한 대기 시간 부여 (5초 -> 15초)
 sleep 15
 rm -f "$TEMP_FILE"
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------
+import os
+import time
+import tempfile
+import webbrowser
+
+HTML_CONTENT = """<!DOCTYPE html>
+<html>
+<head>
+    <title>Samsung Stock Chart (KRX:005930)</title>
+</head>
+<body style="margin: 0; padding: 0; overflow: hidden;">
+    <div class="tradingview-widget-container" style="height: 100vh; width: 100vw;">
+        <div id="tv_chart" style="height: 100%; width: 100%;"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": "KRX:005930",
+                "interval": "60",
+                "timezone": "Asia/Seoul",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "enable_publishing": false,
+                "hide_top_toolbar": false,
+                "save_image": false,
+                "container_id": "tv_chart"
+            });
+        </script>
+    </div>
+</body>
+</html>
+"""
+
+def main():
+    # 1. Create a secure temporary HTML file
+    fd, temp_path = tempfile.mkstemp(suffix='.html', prefix='samsung_chart_')
+    
+    # 2. Write the HTML payload
+    with os.fdopen(fd, 'w', encoding='utf-8') as f:
+        f.write(HTML_CONTENT)
+    
+    # 3. Open the file using the default web browser (formatting as a file:// URI)
+    file_url = f"file://{temp_path}"
+    webbrowser.open(file_url)
+    
+    # 4. Sleep briefly to ensure the browser reads the file before deletion
+    time.sleep(5)
+    
+    # 5. Clean up the temporary file
+    try:
+        os.remove(temp_path)
+    except OSError as e:
+        print(f"Failed to clean up temporary file: {e}")
+
+if __name__ == "__main__":
+    main()
