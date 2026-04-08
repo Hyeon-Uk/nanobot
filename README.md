@@ -2064,3 +2064,33 @@ while kill -0 $AGENT_PID 2>/dev/null; do
 done
 
 echo "테스크가 종료되어 메모리 수집을 완료했습니다. ($LOG_FILE 확인)"
+
+------------------------
+#!/bin/bash
+
+# 모니터링할 에이전트의 PID를 입력하세요
+AGENT_PID=12345 
+LOG_FILE="memory_log.txt"
+
+echo "메모리 수집을 시작합니다. (PID: $AGENT_PID)"
+
+# 1. 로그 파일 초기화 및 헤더 추가
+# memps의 표준 에러(2>)를 /dev/null로 버려서 에러 메시지가 파이프로 넘어가지 않게 차단합니다.
+MEMPS_HEADER=$(memps -a 2>/dev/null | head -n 1)
+echo "TIMESTAMP            $MEMPS_HEADER" > "$LOG_FILE"
+
+# 2. 프로세스 모니터링 루프
+while kill -0 $AGENT_PID 2>/dev/null; do
+    TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    # 2>/dev/null 처리를 추가하여 cannot open file 에러를 완전히 억제합니다.
+    PROCESS_DATA=$(memps -a 2>/dev/null | grep "\b$AGENT_PID\b")
+    
+    if [ -n "$PROCESS_DATA" ]; then
+        echo "$TIMESTAMP  $PROCESS_DATA" >> "$LOG_FILE"
+    fi
+    
+    sleep 1
+done
+
+echo "테스크가 종료되어 메모리 수집을 완료했습니다. ($LOG_FILE 확인)"
