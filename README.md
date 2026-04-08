@@ -1925,3 +1925,91 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+import os
+import time
+import tempfile
+import webbrowser
+import urllib.request
+import urllib.error
+
+def fetch_data():
+    url = "https://query1.finance.yahoo.com/v8/finance/chart/005930.KS?range=7d&interval=1d"
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            return response.read().decode('utf-8')
+    except urllib.error.URLError as e:
+        print(f"데이터를 가져오는데 실패했습니다: {e}")
+        return None
+
+def main():
+    json_data = fetch_data()
+    if not json_data:
+        return
+
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Samsung Stock (Last 7 Days)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>body {{ font-family: sans-serif; padding: 20px; }}</style>
+</head>
+<body>
+    <h2>삼성전자 (005930) - 최근 1주일 종가 추이</h2>
+    <div style="width: 80vw; height: 70vh;">
+        <canvas id="myChart"></canvas>
+    </div>
+    <script>
+        const rawData = {json_data};
+        try {{
+            const result = rawData.chart.result[0];
+            const labels = result.timestamp.map(t => new Date(t * 1000).toLocaleDateString());
+            const prices = result.indicators.quote[0].close;
+
+            const ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {{
+                type: 'line',
+                data: {{
+                    labels: labels,
+                    datasets: [{{
+                        label: '종가 (KRW)',
+                        data: prices,
+                        borderColor: '#0055b8',
+                        backgroundColor: 'rgba(0, 85, 184, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }}]
+                }},
+                options: {{ responsive: true, maintainAspectRatio: false }}
+            }});
+        }} catch (e) {{
+            document.body.innerHTML += "<p>데이터 파싱 중 오류가 발생했습니다.</p>";
+        }}
+    </script>
+</body>
+</html>
+"""
+
+    fd, temp_path = tempfile.mkstemp(suffix='.html', prefix='samsung_chart_')
+    
+    with os.fdopen(fd, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+    
+    file_url = f"file://{temp_path}"
+    webbrowser.open(file_url)
+    
+    # 브라우저가 파일을 읽을 수 있도록 대기
+    time.sleep(5)
+    
+    try:
+        os.remove(temp_path)
+    except OSError:
+        pass
+
+if __name__ == "__main__":
+    main()
