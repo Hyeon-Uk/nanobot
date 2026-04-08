@@ -2013,3 +2013,54 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+----------------
+#!/bin/bash
+
+# 모니터링할 에이전트의 PID를 입력하세요
+AGENT_PID=12345 
+LOG_FILE="memory_log_pss_rss.txt"
+
+echo "메모리 수집을 시작합니다. (PID: $AGENT_PID)"
+
+# 1. memps 헤더에서 PSS와 RSS 컬럼의 위치(인덱스)를 동적으로 탐색
+HEADER=$(memps -a 2>/dev/null | head -n 1)
+
+# awk를 사용하여 대소문자 구분 없이(toupper) PSS와 RSS 컬럼이 몇 번째인지 찾습니다.
+PSS_IDX=$(echo "$HEADER" | awk '{for(i=1;i<=NF;i++) if(toupper($i) == "PSS") print i}')
+RSS_IDX=$(echo "$HEADER" | awk '{for(i=1;i<=NF;i++) if(toupper($i) == "RSS") print i}')
+
+# 컬럼 인덱스를 정상적으로 찾았는지 확인하고 로그 헤더 작성
+if [ -n "$PSS_IDX" ] && [ -n "$RSS_IDX" ]; then
+    printf "%-22s %-10s %-10s\n" "TIMESTAMP" "PSS" "RSS" > "$LOG_FILE"
+    USE_PARSING=1
+else
+    # 만약 환경 차이로 컬럼을 못 찾으면 기존처럼 전체 데이터를 로깅하도록 폴백(Fallback) 처리
+    echo "경고: 헤더에서 PSS/RSS 컬럼을 찾을 수 없어 전체 항목을 로깅합니다."
+    echo "TIMESTAMP              $HEADER" > "$LOG_FILE"
+    USE_PARSING=0
+fi
+
+# 2. 프로세스 모니터링 루프
+while kill -0 $AGENT_PID 2>/dev/null; do
+    TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    # 에러 메시지 억제(2>/dev/null) 및 해당 PID 데이터 추출
+    PROCESS_DATA=$(memps -a 2>/dev/null | grep "\b$AGENT_PID\b")
+    
+    if [ -n "$PROCESS_DATA" ]; then
+        if [ "$USE_PARSING" -eq 1 ]; then
+            # 찾은 인덱스(PSS_IDX, RSS_IDX)를 이용해 해당 컬럼의 값만 추출
+            EXTRACTED_DATA=$(echo "$PROCESS_DATA" | awk -v p="$PSS_IDX" -v r="$RSS_IDX" '{printf "%-10s %-10s", $p, $r}')
+            # 타임스탬프와 함께 정렬하여 기록
+            printf "%-22s %s\n" "$TIMESTAMP" "$EXTRACTED_DATA" >> "$LOG_FILE"
+        else
+            echo "$TIMESTAMP  $PROCESS_DATA" >> "$LOG_FILE"
+        fi
+    fi
+    
+    sleep 1
+done
+
+echo "테스크가 종료되어 메모리 수집을 완료했습니다. ($LOG_FILE 확인)"
