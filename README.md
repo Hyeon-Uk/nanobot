@@ -1813,3 +1813,45 @@ fi
 # 4. Wait briefly for the browser to read the file, then clean up
 sleep 5
 rm -f "$TEMP_FILE"
+
+
+
+#!/bin/bash
+
+# 1. 임시 HTML 파일 생성
+TEMP_FILE=$(mktemp /tmp/samsung_chart_XXXXXX.html)
+
+# 2. JS 대신 iframe을 직접 사용하여 보안 정책 우회
+cat << 'EOF' > "$TEMP_FILE"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Samsung Stock Chart (KRX:005930)</title>
+</head>
+<body style="margin: 0; padding: 0; overflow: hidden; background-color: #131722;">
+    <iframe 
+        src="https://s.tradingview.com/widgetembed/?symbol=KRX:005930&interval=60&theme=dark&style=1&timezone=Asia%2FSeoul" 
+        style="width: 100vw; height: 100vh; border: none;" 
+        allowtransparency="true" 
+        scrolling="no" 
+        allowfullscreen>
+    </iframe>
+</body>
+</html>
+EOF
+
+# 3. 기본 브라우저로 실행
+if command -v xdg-open &> /dev/null; then
+    xdg-open "$TEMP_FILE"
+elif command -v google-chrome &> /dev/null; then
+    google-chrome "$TEMP_FILE"
+elif command -v firefox &> /dev/null; then
+    firefox "$TEMP_FILE"
+else
+    echo "호환되는 브라우저를 찾을 수 없습니다. 수동으로 열어주세요: $TEMP_FILE"
+    exit 1
+fi
+
+# 4. 브라우저가 차트를 완전히 로드할 수 있도록 충분한 대기 시간 부여 (5초 -> 15초)
+sleep 15
+rm -f "$TEMP_FILE"
