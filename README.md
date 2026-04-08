@@ -1760,3 +1760,56 @@ Level 5의 다중 선형 회귀는 numpy 없이 행렬 전치(Transpose), 행렬
 코드 상단에는 해당 버전의 특징과 제약사항을 주석으로 명시하세요.
 
 지금 바로 problems.md를 분석하고 코드를 작성해 주십시오.
+
+
+#!/bin/bash
+
+# 1. Create a temporary HTML file
+TEMP_FILE=$(mktemp /tmp/samsung_chart_XXXXXX.html)
+
+# 2. Write the TradingView Widget HTML to the temp file
+cat << 'EOF' > "$TEMP_FILE"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Samsung Stock Chart (KRX:005930)</title>
+</head>
+<body style="margin: 0; padding: 0; overflow: hidden;">
+    <div class="tradingview-widget-container" style="height: 100vh; width: 100vw;">
+        <div id="tv_chart" style="height: 100%; width: 100%;"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": "KRX:005930",
+                "interval": "60",
+                "timezone": "Asia/Seoul",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "enable_publishing": false,
+                "hide_top_toolbar": false,
+                "save_image": false,
+                "container_id": "tv_chart"
+            });
+        </script>
+    </div>
+</body>
+</html>
+EOF
+
+# 3. Open the file using the default system browser
+if command -v xdg-open &> /dev/null; then
+    xdg-open "$TEMP_FILE"
+elif command -v google-chrome &> /dev/null; then
+    google-chrome "$TEMP_FILE"
+elif command -v firefox &> /dev/null; then
+    firefox "$TEMP_FILE"
+else
+    echo "No compatible browser found. You can open $TEMP_FILE manually."
+    exit 1
+fi
+
+# 4. Wait briefly for the browser to read the file, then clean up
+sleep 5
+rm -f "$TEMP_FILE"
